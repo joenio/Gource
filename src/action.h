@@ -52,6 +52,8 @@ public:
 class CreateAction : public RAction {
 public:
     CreateAction(RUser* source, RFile* target, time_t timestamp, float t);
+
+    void apply();
 };
 
 class RemoveAction : public RAction {
@@ -59,6 +61,7 @@ public:
     RemoveAction(RUser* source, RFile* target, time_t timestamp, float t);
 
     void logic(float dt);
+    void apply();
 };
 
 class ModifyAction : public RAction {

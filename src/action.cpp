@@ -16,9 +16,49 @@
 */
 
 #include "action.h"
+#include <stdio.h>
+#include <csound/csound.hpp>
+#include <string>
 
 RAction::RAction(RUser* source, RFile* target, time_t timestamp, float t, const vec3& colour)
     : colour(colour), source(source), target(target), timestamp(timestamp), t(t), progress(0.0f), rate(0.5f) {
+}
+
+int csoundPerform(std::string csoundScore)
+{
+
+  std::string csoundOrc = "sr=44100\n\
+                           ksmps=32\n\
+                           nchnls=2\n\
+                           0dbfs=1\n\
+                           \n\
+                           instr 1\n\
+                           aout vco2 0.5, p4\n\
+                           outs aout, aout\n\
+                           endin";
+
+  //create an instance of Csound
+  Csound* csound = new Csound();
+
+  //set CsOptions
+  csound->SetOption("-odac");
+
+  //compile orc.
+  csound->CompileOrc(csoundOrc.c_str());
+
+  //compile sco
+  csound->ReadScore(csoundScore.c_str());
+
+  //prepare Csound for performance
+  csound->Start();
+
+  //perform entire score
+  csound->Perform();
+
+  //free Csound object
+  delete csound;
+
+  return 0;
 }
 
 void RAction::apply() {
@@ -123,4 +163,13 @@ ModifyAction::ModifyAction(RUser* source, RFile* target, time_t timestamp, float
 void ModifyAction::apply() {
     RAction::apply();
     target->setFileColour(modify_colour);
+    csoundPerform("i1 0 0.1 220");
+}
+
+void CreateAction::apply() {
+    csoundPerform("i1 0 0.1 440");
+}
+
+void RemoveAction::apply() {
+    csoundPerform("i1 0 0.1 110");
 }
